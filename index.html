@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NTUN Valorant Tournament 2025</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --red: #ff4655;
+    --red-dark: #c0303c;
+    --bg: #0d0d14;
+    --bg2: #111118;
+    --bg3: #18181f;
+    --bg4: #1e1e28;
+    --border: #2a2a38;
+    --border2: #383848;
+    --text: #e8e8f0;
+    --muted: #7a7a95;
+    --dim: #50505f;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── LOGIN SCREEN ── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    position: relative;
+    overflow: hidden;
+  }
+  #login-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(255,70,85,0.12) 0%, transparent 70%),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,70,85,0.03) 60px, rgba(255,70,85,0.03) 61px),
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,70,85,0.03) 60px, rgba(255,70,85,0.03) 61px);
+    pointer-events: none;
+  }
+
+  .login-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--red);
+    border-radius: 8px;
+    padding: 2.5rem 2rem;
+    width: 100%;
+    max-width: 380px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .login-logo {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .login-logo .v-mark {
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    color: #fff;
+    line-height: 1;
+  }
+  .login-logo .v-mark span { color: var(--red); }
+  .login-logo p {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 6px;
+  }
+
+  .login-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .field { margin-bottom: 1rem; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .field input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 10px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  .field input:focus { border-color: var(--red); }
+  .field input::placeholder { color: var(--dim); }
+
+  .login-hint {
+    font-size: 11px;
+    color: var(--dim);
+    margin-top: 4px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    margin-top: 0.5rem;
+    transition: background 0.2s, transform 0.1s;
+    font-family: inherit;
+  }
+  .btn-primary:hover { background: var(--red-dark); }
+  .btn-primary:active { transform: scale(0.98); }
+
+  .error-msg {
+    background: rgba(255,70,85,0.1);
+    border: 1px solid rgba(255,70,85,0.3);
+    color: #ff8a94;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-bottom: 1rem;
+    display: none;
+  }
+
+  /* ── MAIN APP ── */
+  #app { display: none; }
+
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-logo {
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .topbar-logo span { color: var(--red); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .user-pill {
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 10px;
+  }
+  .user-pill strong { color: #fff; }
+  .logout-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+  .nav-tabs {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+  }
+  .nav-tab {
+    padding: 14px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .nav-tab:hover:not(.active) { color: #ccc; background: rgba(255,255,255,0.02); }
+  .nav-tab.active { color: var(--red); border-bottom-color: var(--red); }
+
+  .content { padding: 1.5rem; max-width: 700px; margin: 0 auto; }
+
+  /* ── HERO ── */
+  .hero-banner {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .hero-banner h2 { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .hero-banner p { font-size: 13px; color: var(--muted); }
+
+  /* ── SECTION ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0.75rem;
+    margin-top: 1.5rem;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  /* ── FORM ── */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .form-group { margin-bottom: 10px; }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 5px;
+  }
+  .form-group label .req { color: var(--red); }
+  .form-group label .opt {
+    font-size: 10px;
+    background: var(--bg4);
+    color: var(--dim);
+    padding: 1px 5px;
+    border-radius: 2px;
+    margin-left: 4px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .form-group input[type=text],
+  .form-group input[type=email] {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 9px 11px;
+    font-size: 13px;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  .form-group input:focus { border-color: var(--red); }
+  .form-group input::placeholder { color: var(--dim); }
+
+  /* ── LOGO UPLOAD ── */
+  .logo-upload-area {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 1rem;
+  }
+  .logo-preview {
+    width: 70px;
+    height: 70px;
+    border: 2px dashed var(--border2);
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--dim);
+    text-align: center;
+    overflow: hidden;
+    background: var(--bg3);
+  }
+  .logo-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+  .logo-upload-btn {
+    display: inline-block;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--muted);
+    padding: 7px 12px;
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .logo-upload-btn:hover { border-color: var(--red); color: #fff; }
+  #logo-file-input { display: none; }
+
+  /* ── PLAYER CARDS ── */
+  .players-grid { display: flex; flex-direction: column; gap: 10px; }
+  .player-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .player-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .player-badge {
+    background: var(--red);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 2px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .player-badge.coach-badge { background: var(--bg4); border: 1px solid var(--border2); color: var(--muted); }
+  .player-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* ── ROLE SELECT ── */
+  .role-select {
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    color: #ccc;
+    padding: 8px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .role-select:focus { border-color: var(--red); }
+
+  /* ── SUBMIT ── */
+  .submit-btn {
+    width: 100%;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 4px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    margin-top: 1.5rem;
+    transition: background 0.2s, transform 0.1s;
+    font-family: inherit;
+    text-transform: uppercase;
+  }
+  .submit-btn:hover { background: var(--red-dark); }
+  .submit-btn:active { transform: scale(0.99); }
+
+  /* ── SUCCESS BANNER ── */
+  .success-banner {
+    background: rgba(30,180,100,0.08);
+    border: 1px solid rgba(30,180,100,0.3);
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 1.5rem;
+    display: none;
+  }
+  .success-banner .sb-title { color: #4ade80; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .success-banner .sb-body { font-size: 12px; color: #aaa; line-height: 1.8; }
+  .success-banner .sb-body strong { color: #fff; }
+
+  /* ── TEAMS TAB ── */
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .stat-num { font-size: 26px; font-weight: 700; color: var(--red); line-height: 1; }
+  .stat-lbl { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .team-list { display: flex; flex-direction: column; gap: 12px; }
+  .team-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .team-card-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .team-logo-sm {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    overflow: hidden;
+  }
+  .team-logo-sm img { width: 100%; height: 100%; object-fit: cover; }
+  .team-meta { flex: 1; min-width: 0; }
+  .team-meta h3 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+  .team-meta .email-link { font-size: 12px; color: var(--red); word-break: break-all; }
+  .team-meta .reg-date { font-size: 11px; color: var(--dim); margin-top: 2px; }
+  .team-card-body { padding: 12px 16px; }
+  .members-grid { display: flex; flex-direction: column; gap: 6px; }
+  .member-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+    padding: 6px 10px;
+    background: var(--bg3);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .member-left { display: flex; align-items: center; gap: 8px; }
+  .member-num {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--red);
+    width: 16px;
+    text-align: center;
+  }
+  .member-ign { color: #fff; font-weight: 500; }
+  .member-email { color: var(--muted); font-size: 11px; }
+  .role-pill {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .role-Duelist    { background: rgba(255,70,85,0.15); color: #ff8a94; }
+  .role-Controller { background: rgba(100,120,255,0.15); color: #8898ff; }
+  .role-Initiator  { background: rgba(255,180,50,0.15); color: #ffc94d; }
+  .role-Sentinel   { background: rgba(50,200,130,0.15); color: #4adea0; }
+  .role-Flex       { background: rgba(150,150,180,0.15); color: #aaaacc; }
+  .coach-row { border-color: rgba(255,70,85,0.25) !important; }
+  .coach-row .member-num { color: #ff8a94; }
+
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--dim); }
+  .empty-state .big { font-size: 40px; margin-bottom: 1rem; }
+  .empty-state p { font-size: 14px; color: var(--muted); }
+
+  @media (max-width: 560px) {
+    .player-fields { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .member-email { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN SCREEN ══════════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="v-mark">VAL<span>▲</span>RANT</div>
+      <p>NTUN Esports 2025</p>
+    </div>
+    <p class="login-title">Sign in to register your team</p>
+    <div id="login-error" class="error-msg">Incorrect username or password.</div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="Enter username" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Enter password" autocomplete="current-password">
+      <p class="login-hint">Use your @ntun.ac.th credentials</p>
+    </div>
+    <button class="btn-primary" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN APP ══════════════ -->
+<div id="app">
+
+  <div class="topbar">
+    <div class="topbar-logo">VAL<span>▲</span>RANT <span style="font-size:12px; font-weight:400; color:var(--muted); margin-left:6px;">NTUN Tournament</span></div>
+    <div class="topbar-right">
+      <div class="user-pill">Signed in as <strong id="display-user">–</strong></div>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchTab('register', this)">📋 Register Team</div>
+    <div class="nav-tab" onclick="switchTab('teams', this)">🛡 All Teams</div>
+  </div>
+
+  <!-- ── REGISTER TAB ── -->
+  <div id="tab-register" class="content">
+
+    <div class="hero-banner">
+      <h2>Team Registration</h2>
+      <p>All 5 player names and emails are required · Coach is optional · Email must be @ntun.ac.th</p>
+    </div>
+
+    <div id="success-banner" class="success-banner">
+      <div class="sb-title">✓ Team registered successfully!</div>
+      <div class="sb-body" id="success-detail"></div>
+    </div>
+
+    <!-- Team Info -->
+    <div class="section-label">Team Information</div>
+
+    <div class="logo-upload-area">
+      <div class="logo-preview" id="logo-preview">
+        <span>No<br>logo</span>
+      </div>
+      <div>
+        <div style="font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:6px;">
+          Team Logo <span style="font-size:10px; background:var(--bg4); color:var(--dim); padding:1px 5px; border-radius:2px; text-transform:none; letter-spacing:0;">optional</span>
+        </div>
+        <label for="logo-file-input" class="logo-upload-btn">📁 Choose image</label>
+        <input type="file" id="logo-file-input" accept="image/*" onchange="previewLogo(this)">
+        <div style="font-size:11px; color:var(--dim); margin-top:6px;">PNG, JPG · Max 2 MB</div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Team name <span class="req">*</span></label>
+        <input type="text" id="team-name" placeholder="e.g. NTUN Phoenix" maxlength="30">
+      </div>
+      <div class="form-group">
+        <label>Team contact email <span class="req">*</span></label>
+        <input type="email" id="team-email" placeholder="team@ntun.ac.th">
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Players -->
+    <div class="section-label">Players — 5 required</div>
+    <div class="players-grid" id="players-grid"></div>
+
+    <hr class="divider">
+
+    <!-- Coach -->
+    <div class="section-label">Coach <span style="font-size:10px; background:var(--bg4); color:var(--dim); padding:1px 5px; border-radius:2px; text-transform:none; letter-spacing:0;">optional</span></div>
+    <div class="player-card">
+      <div class="player-card-head">
+        <span class="player-badge coach-badge">Coach</span>
+      </div>
+      <div class="player-fields">
+        <div class="form-group" style="margin:0;">
+          <label>Full name</label>
+          <input type="text" id="coach-name" placeholder="Coach name">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>Email</label>
+          <input type="email" id="coach-email" placeholder="coach@ntun.ac.th">
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="registerTeam()">⚔ Submit Registration</button>
+  </div>
+
+  <!-- ── TEAMS TAB ── -->
+  <div id="tab-teams" class="content" style="display:none;">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="stat-teams">0</div><div class="stat-lbl">Teams</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-players">0</div><div class="stat-lbl">Players</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-coaches">0</div><div class="stat-lbl">Coaches</div></div>
+    </div>
+    <div class="section-label">Registered Teams</div>
+    <div class="team-list" id="teams-list"></div>
+  </div>
+
+</div><!-- end #app -->
+
+<script>
+/* ─── AUTH ─── */
+const USERS = {
+  'admin': 'ntun2025',
+  'organizer': 'valorant@ntun',
+  'staff': 'staff1234'
+};
+
+let currentUser = sessionStorage.getItem('valo_user') || null;
+let logoDataUrl = null;
+const ROLES = ['Duelist', 'Controller', 'Initiator', 'Sentinel', 'Flex'];
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  if (USERS[u] && USERS[u] === p) {
+    currentUser = u;
+    sessionStorage.setItem('valo_user', u);
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('display-user').textContent = u;
+    document.getElementById('login-error').style.display = 'none';
+    buildPlayersGrid();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('valo_user');
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') doLogin();
+});
+
+/* ─── INIT ─── */
+if (currentUser) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('display-user').textContent = currentUser;
+  buildPlayersGrid();
+}
+
+/* ─── LOGO ─── */
+function previewLogo(input) {
+  if (!input.files[0]) return;
+  if (input.files[0].size > 2 * 1024 * 1024) { alert('Image must be under 2 MB.'); return; }
+  const r = new FileReader();
+  r.onload = e => {
+    logoDataUrl = e.target.result;
+    document.getElementById('logo-preview').innerHTML = '<img src="' + logoDataUrl + '" alt="logo">';
+  };
+  r.readAsDataURL(input.files[0]);
+}
+
+/* ─── PLAYERS GRID ─── */
+function buildPlayersGrid() {
+  const grid = document.getElementById('players-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (let i = 1; i <= 5; i++) {
+    const card = document.createElement('div');
+    card.className = 'player-card';
+    card.innerHTML = `
+      <div class="player-card-head">
+        <span class="player-badge">Player ${i}</span>
+      </div>
+      <div class="player-fields">
+        <div class="form-group" style="margin:0;">
+          <label>In-game name (IGN) <span class="req">*</span></label>
+          <input type="text" id="p${i}-ign" placeholder="IGN#0000">
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" id="p${i}-email" placeholder="player${i}@ntun.ac.th">
+        </div>
+      </div>
+      <div style="margin-top:8px;">
+        <label style="display:block; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.8px; margin-bottom:5px;">Role</label>
+        <select class="role-select" id="p${i}-role">
+          ${ROLES.map(r => `<option value="${r}">${r}</option>`).join('')}
+        </select>
+      </div>
+    `;
+    grid.appendChild(card);
+  }
+}
+
+/* ─── HELPERS ─── */
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function validEmail(e) {
+  return /^[^\s@]+@ntun\.ac\.th$/i.test(e.trim());
+}
+
+function loadTeams() {
+  try { return JSON.parse(localStorage.getItem('valo_teams') || '[]'); } catch(e) { return []; }
+}
+
+function saveTeams(arr) {
+  try { localStorage.setItem('valo_teams', JSON.stringify(arr)); } catch(e) {}
+}
+
+/* ─── REGISTER ─── */
+function registerTeam() {
+  const teamName  = document.getElementById('team-name').value.trim();
+  const teamEmail = document.getElementById('team-email').value.trim();
+
+  if (!teamName) { alert('Please enter a team name.'); return; }
+  if (!teamEmail || !validEmail(teamEmail)) { alert('Team contact email must be @ntun.ac.th.'); return; }
+
+  const players = [];
+  for (let i = 1; i <= 5; i++) {
+    const ign   = document.getElementById(`p${i}-ign`).value.trim();
+    const email = document.getElementById(`p${i}-email`).value.trim();
+    const role  = document.getElementById(`p${i}-role`).value;
+    if (!ign)   { alert(`Player ${i} IGN is required.`); return; }
+    if (!email) { alert(`Player ${i} email is required.`); return; }
+    if (!validEmail(email)) { alert(`Player ${i} email must be @ntun.ac.th.`); return; }
+    players.push({ ign, email, role });
+  }
+
+  const coachName  = document.getElementById('coach-name').value.trim();
+  const coachEmail = document.getElementById('coach-email').value.trim();
+  if (coachEmail && !validEmail(coachEmail)) { alert('Coach email must be @ntun.ac.th.'); return; }
+
+  const team = {
+    id: Date.now(),
+    name: teamName,
+    email: teamEmail,
+    logo: logoDataUrl,
+    players: players,
+    coach: coachName ? { name: coachName, email: coachEmail } : null,
+    date: new Date().toLocaleDateString('en-GB'),
+    registeredBy: currentUser
+  };
+
+  const teams = loadTeams();
+  teams.push(team);
+  saveTeams(teams);
+
+  const detail = `
+    <strong>Team:</strong> ${esc(teamName)}<br>
+    <strong>Contact:</strong> ${esc(teamEmail)}<br>
+    <strong>Players:</strong> ${players.map(p => esc(p.ign) + ' (' + esc(p.email) + ')').join(', ')}<br>
+    ${team.coach ? '<strong>Coach:</strong> ' + esc(team.coach.name) + (team.coach.email ? ' (' + esc(team.coach.email) + ')' : '') : ''}
+  `;
+  document.getElementById('success-detail').innerHTML = detail;
+  document.getElementById('success-banner').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  document.getElementById('team-name').value = '';
+  document.getElementById('team-email').value = '';
+  document.getElementById('coach-name').value = '';
+  document.getElementById('coach-email').value = '';
+  document.getElementById('logo-file-input').value = '';
+  logoDataUrl = null;
+  document.getElementById('logo-preview').innerHTML = '<span>No<br>logo</span>';
+  buildPlayersGrid();
+}
+
+/* ─── TABS ─── */
+function switchTab(tab, el) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('tab-register').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('tab-teams').style.display    = tab === 'teams'    ? 'block' : 'none';
+  if (tab === 'teams') renderTeams();
+}
+
+/* ─── RENDER TEAMS ─── */
+function renderTeams() {
+  const teams = loadTeams();
+  document.getElementById('stat-teams').textContent   = teams.length;
+  document.getElementById('stat-players').textContent = teams.reduce((s,t) => s + t.players.length, 0);
+  document.getElementById('stat-coaches').textContent = teams.filter(t => t.coach).length;
+
+  const list = document.getElementById('teams-list');
+
+  if (!teams.length) {
+    list.innerHTML = `<div class="empty-state"><div class="big">🛡</div><p>No teams registered yet.<br>Be the first to sign up!</p></div>`;
+    return;
+  }
+
+  list.innerHTML = teams.map(t => `
+    <div class="team-card">
+      <div class="team-card-top">
+        <div class="team-logo-sm">
+          ${t.logo ? `<img src="${esc(t.logo)}" alt="logo">` : '🛡'}
+        </div>
+        <div class="team-meta">
+          <h3>${esc(t.name)}</h3>
+          <div class="email-link">📧 ${esc(t.email)}</div>
+          <div class="reg-date">Registered ${esc(t.date)} · by ${esc(t.registeredBy || '–')}</div>
+        </div>
+      </div>
+      <div class="team-card-body">
+        <div class="members-grid">
+          ${t.players.map((p, i) => `
+            <div class="member-row">
+              <div class="member-left">
+                <span class="member-num">${i+1}</span>
+                <div>
+                  <div class="member-ign">${esc(p.ign)}</div>
+                  <div class="member-email">${esc(p.email)}</div>
+                </div>
+              </div>
+              <span class="role-pill role-${esc(p.role)}">${esc(p.role)}</span>
+            </div>
+          `).join('')}
+          ${t.coach ? `
+            <div class="member-row coach-row">
+              <div class="member-left">
+                <span class="member-num">👑</span>
+                <div>
+                  <div class="member-ign">${esc(t.coach.name)}</div>
+                  <div class="member-email">${t.coach.email ? esc(t.coach.email) : '–'}</div>
+                </div>
+              </div>
+              <span class="role-pill role-Flex">Coach</span>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+</script>
+</body>
+</html>
